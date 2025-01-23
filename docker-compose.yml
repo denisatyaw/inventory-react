@@ -1,0 +1,79 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/backend  # Sinkronkan folder backend dengan folder /backend di container
+      - backend-node-modules:/backend/node_modules  # Volume untuk node_modules backend
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mydatabase
+    depends_on:
+      - mysql
+    command: npm run dev
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app  # Volume untuk sinkronisasi kode
+      - frontend-node-modules:/app/node_modules  # Volume untuk node_modules frontend
+    environment:
+      - VITE_API_URL=http://backend:5000  # Frontend mengakses backend menggunakan nama service 'backend'
+    depends_on:
+      - backend
+    command: npm run dev -- --host  # Menjalankan Vite dan mengizinkan koneksi dari luar container
+    networks:
+      - app-network
+
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"  # Akses phpMyAdmin di port 8080
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+    driver: local
+  frontend-node-modules:
+    driver: local  # Volume untuk node_modules frontend
+  backend-node-modules:
+    driver: local  # Volume untuk node_modules backend
+
+networks:
+  app-network:
+    driver: bridge
