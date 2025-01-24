@@ -32,7 +32,7 @@ const syncDatabase = async () => {
 };
 
 // Memanggil testConnection untuk memastikan koneksi saat aplikasi berjalan
-// testConnection();
+testConnection();
 syncDatabase();
 
 // Mengekspos sequelize dan fungsi tambahan
