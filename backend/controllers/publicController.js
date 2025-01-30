@@ -1,4 +1,5 @@
+const ResponseApiHandler = require('../utils/ResponseApiHandler');
+
 exports.getPublicInfo = (req, res) => {
-    res.send('This is a public route.');
+    return ResponseApiHandler.success(res, 'This is a public route.');
 };
-  

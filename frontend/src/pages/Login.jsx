@@ -1,34 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, User, Lock, AlertCircle } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [roles, setRoles] = useState([]); // Menyimpan daftar role
+  const [selectedRole, setSelectedRole] = useState('');
   const navigate = useNavigate();
+
+  // Fungsi untuk mengambil role berdasarkan username
+  const fetchRolesByUsername = async (username) => {
+    if (!username) return; // Tidak lakukan apa-apa jika username kosong
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/${username}/roles`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setRoles(data.data.roles);
+      } else {
+        setRoles([]); // Kosongkan jika gagal
+      }
+    } catch (err) {
+      setRoles([]); // Kosongkan jika terjadi error
+      console.error('Error fetching roles:', err);
+    }
+  };
+
+  // Mengambil roles ketika username berubah
+  useEffect(() => {
+    fetchRolesByUsername(username);
+  }, [username]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
+    // Cek apakah role sudah dipilih
+    if (!selectedRole) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: 'Please select a role to continue!',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Add your authentication logic here
-      if (email === 'admin@admin.com' && password === 'admin') {
-        // Set authentication state
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('user', JSON.stringify({ email, role: 'admin' }));
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, role: selectedRole }), // Kirim role ke backend
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
+
+      // Simpan token ke localStorage
+      localStorage.setItem('token', data.data.token);
+      
+      // Redirect ke dashboard
+      navigate('/dashboard');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -47,9 +92,6 @@ const Login = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             Enter your credentials to access the admin dashboard
           </p>
-          <p className="mt-2 text-center text-sm text-gray-500">
-            (Use email: admin@admin.com and password: admin)
-          </p>
         </div>
 
         {error && (
@@ -64,26 +106,48 @@ const Login = () => {
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
+              <label htmlFor="username" className="sr-only">
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="username"
+                  name="username"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
+                  placeholder="Username"
                 />
               </div>
             </div>
+
+            {roles.length > 0 && (
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  Select Role
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                >
+                  <option value="">Select a role</option>
+                  {roles.map((role, index) => (
+                    <option key={index} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -96,7 +160,6 @@ const Login = () => {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -104,26 +167,6 @@ const Login = () => {
                   placeholder="Password"
                 />
               </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-                Forgot your password?
-              </a>
             </div>
           </div>
 

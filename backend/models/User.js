@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const { sequelize } = require('../config/db');
-const Role = require('./Role'); // Impor model Role
 
 // Model User
 const User = sequelize.define('User', {
@@ -33,9 +32,5 @@ User.beforeCreate(async (user) => {
 User.prototype.isValidPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
-// Relasi User dengan Role melalui tabel perantara UserRoles
-User.belongsToMany(Role, { through: 'UserRoles' });
-Role.belongsToMany(User, { through: 'UserRoles' });
 
 module.exports = User;
