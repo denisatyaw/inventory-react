@@ -21,7 +21,7 @@ import Settings from './pages/Settings';
 import KanbanBoard from './pages/Kanban';
 
 const MAX_TABS = 10;
-//Test
+
 // Simulated authentication check
 const isAuthenticated = () => {
   return localStorage.getItem('isAuthenticated') === 'true';
