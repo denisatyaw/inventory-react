@@ -5,6 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routers/authRoutes'); 
 const publicRoutes = require('./routers/publicRoutes');
 const adminRoutes = require('./routers/adminRoutes');
+const userRoutes = require('./routers/userRoutes');
 
 dotenv.config();
 
@@ -21,9 +22,10 @@ app.get('/', (req, res) => {
 });
 
 // Rute modular
-app.use('/api/auth', authRoutes);    // Rute untuk autentikasi
-app.use('/api/admin', adminRoutes); // Rute admin
-app.use('/api/public', publicRoutes); // Rute publik
+app.use('/api/auth', authRoutes);   
+app.use('/api/admin', adminRoutes); 
+app.use('/api/public', publicRoutes); 
+app.use('/api/user', userRoutes);
 
 // Error handling global
 app.use((err, req, res, next) => {

@@ -24,7 +24,7 @@ const testConnection = async () => {
 // Menyinkronkan model dengan database
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: true }); // Menyinkronkan model dan memperbarui tabel jika perlu
+    await sequelize.sync({ force: false }); // Menyinkronkan model dan memperbarui tabel jika perlu
     console.log(`Database ${dbConfig.database} synchronized successfully.`);
   } catch (err) {
     console.error(`Failed to synchronize database ${dbConfig.database}:`, err);

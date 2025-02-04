@@ -17,7 +17,7 @@ const Login = () => {
     if (!username) return; // Tidak lakukan apa-apa jika username kosong
 
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/${username}/roles`);
+      const response = await fetch(`http://localhost:5000/api/user/${username}/roles`);
       const data = await response.json();
 
       if (response.ok) {
