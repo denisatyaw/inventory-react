@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./swagger_output.json"); 
 
 const authRoutes = require('./routers/authRoutes'); 
 const publicRoutes = require('./routers/publicRoutes');
@@ -16,16 +18,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 // Route sederhana untuk menguji API
 app.get('/', (req, res) => { 
   res.send('Backend is runnings!');
 });
 
 // Rute modular
-app.use('/api/auth', authRoutes);   
-app.use('/api/admin', adminRoutes); 
-app.use('/api/public', publicRoutes); 
-app.use('/api/user', userRoutes);
+app.use('/auth', authRoutes);   
+app.use('/admin', adminRoutes); 
+app.use('/public', publicRoutes); 
+app.use('/user', userRoutes);
 
 // Error handling global
 app.use((err, req, res, next) => {
