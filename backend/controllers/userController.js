@@ -52,8 +52,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-
-
 // Fungsi untuk menambahkan role ke user
 const addRoleToUser = async (req, res) => {
     const { userId, role } = req.body;
@@ -129,10 +127,11 @@ const updateUser = async (req, res) => {
   
 // Fungsi untuk menghapus user (soft delete)
 const softDeleteUser = async (req, res) => {
-    const { id } = req.params;
+    const { userId  } = req.params;
   
+    console.log('userId ', userId );
     try {
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(userId);
       if (!user) {
         return ResponseApiHandler.error(res, 'User not found', null, 404);
       }

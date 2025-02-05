@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User, Role } = require('../models');
 const ResponseApiHandler = require('../utils/ResponseApiHandler');
-const redisClient = require('../config/redis');
-
 
 const loginUser = async (req, res) => {
   const { username, password, role } = req.body;
@@ -19,8 +17,14 @@ const loginUser = async (req, res) => {
       include: Role, // Pastikan 'Role' di-include
     });
 
+    // Jika user tidak ditemukan
     if (!user) {
       return ResponseApiHandler.error(res, 'Invalid username or password', null, 401);
+    }
+
+    // **Cek apakah user sudah dihapus (delUser = true / 1)**
+    if (user.delUser === true || user.delUser === 1) {
+      return ResponseApiHandler.notFound(res, 'Your account has been deactivated');
     }
 
     // Cek apakah password valid
@@ -53,6 +57,7 @@ const loginUser = async (req, res) => {
 };
 
 
+
 const logoutUser = async (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Ambil token dari header Authorization
 
@@ -75,4 +80,52 @@ const logoutUser = async (req, res) => {
   }
 };
 
-module.exports = { loginUser, logoutUser };
+const checkSession = async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    // Cek apakah token masuk dalam blacklist di Redis
+    const isBlacklisted = await redisClient.get(`blacklist_${token}`);
+    if (isBlacklisted) {
+      return res.status(403).json({ message: 'Session expired. Please login again.' });
+    }
+
+    // Verifikasi token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    return res.status(200).json({ message: 'Session is active', user: decoded });
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+
+  if (!token) {
+    return res.status(400).json({ message: 'Token is required' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+
+    // Buat token baru
+    const newToken = jwt.sign(
+      { userId: decoded.userId, username: decoded.username, role: decoded.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    
+
+    return res.json({ message: 'Token refreshed', token: newToken });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+
+module.exports = { loginUser, logoutUser, checkSession, refreshToken};
