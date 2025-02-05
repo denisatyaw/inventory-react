@@ -35,10 +35,15 @@ const User = sequelize.define('User', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       notEmpty: true,
     },
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,  // Karena setiap googleId harus unik
   },
   delUser: {
     type: DataTypes.BOOLEAN,
@@ -48,9 +53,12 @@ const User = sequelize.define('User', {
 
 // Hash password sebelum menyimpan user
 User.beforeCreate(async (user) => {
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
+  if (user.password) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
 });
+
 
 User.prototype.isValidPassword = async function (password) {
   return await bcrypt.compare(password, this.password);

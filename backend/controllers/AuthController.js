@@ -127,5 +127,44 @@ const refreshToken = async (req, res) => {
   }
 };
 
+// Google Login Callback
+const googleLoginCallback = async (req, res) => {
+  try {
+    let user = req.user; // User yang terautentikasi melalui Google OAuth
 
-module.exports = { loginUser, logoutUser, checkSession, refreshToken};
+    if (!user) {
+      return ResponseApiHandler.error(res, 'User not found or failed to authenticate with Google', null, 401);
+    }
+
+    // Jika user belum ada, buat user baru berdasarkan informasi Google
+    if (!user.googleId) {
+      user.googleId = req.user.id;
+      await user.save();
+    }
+
+    // Tentukan role default jika login melalui Google
+    const role = 'user'; // Set default role ke 'user'
+
+    // Buat token JWT dengan informasi user dan role default
+    const token = jwt.sign(
+      { userId: user.id, username: user.username, role }, // Gunakan role default 'user'
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' } // Set expired time sesuai kebutuhan
+    );
+
+    // Kirim response dengan token
+    return ResponseApiHandler.success(res, 'Login successful', { token });
+  } catch (err) {
+    console.error(err);
+    return ResponseApiHandler.error(res, 'Server error', err.message);
+  }
+};
+
+
+module.exports = { 
+  loginUser, 
+  logoutUser, 
+  checkSession, 
+  refreshToken, 
+  googleLoginCallback
+};

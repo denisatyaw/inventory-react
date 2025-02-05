@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const swaggerUi = require("swagger-ui-express");
@@ -8,11 +9,27 @@ const authRoutes = require('./routers/authRoutes');
 const publicRoutes = require('./routers/publicRoutes');
 const adminRoutes = require('./routers/adminRoutes');
 const userRoutes = require('./routers/userRoutes');
+const passport = require('./config/passport');
 
 dotenv.config();
 
 // Membuat instance aplikasi Express
 const app = express();
+
+// Konfigurasi express-session
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key', // Kunci rahasia untuk menandatangani sesi
+  resave: false,             // Jangan menyimpan sesi jika tidak ada perubahan
+  saveUninitialized: false,  // Jangan menyimpan sesi yang belum diinisialisasi
+  cookie: { 
+    httpOnly: true,          // Mencegah akses cookie melalui JavaScript di sisi klien
+    secure: process.env.NODE_ENV === 'production' // Hanya kirim cookie melalui HTTPS di produksi
+  }
+}));
+
+// Middleware Passport untuk autentikasi
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Middleware global
 app.use(cors());
