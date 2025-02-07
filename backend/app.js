@@ -9,6 +9,7 @@ const authRoutes = require('./routers/authRoutes');
 const publicRoutes = require('./routers/publicRoutes');
 const adminRoutes = require('./routers/adminRoutes');
 const userRoutes = require('./routers/userRoutes');
+const menuRoutes = require('./routers/menuRoutes');
 const passport = require('./config/passport');
 
 dotenv.config();
@@ -48,6 +49,7 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes); 
 app.use('/public', publicRoutes); 
 app.use('/user', userRoutes);
+app.use('/menu', menuRoutes);
 
 // Error handling global
 app.use((err, req, res, next) => {
