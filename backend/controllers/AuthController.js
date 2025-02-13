@@ -82,7 +82,7 @@ const logoutUser = async (req, res) => {
 
 const checkSession = async (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1];
-
+  console.log("token", token);
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
@@ -90,12 +90,15 @@ const checkSession = async (req, res) => {
   try {
     // Cek apakah token masuk dalam blacklist di Redis
     const isBlacklisted = await redisClient.get(`blacklist_${token}`);
+    console.log("Is blacklisted:", isBlacklisted);
     if (isBlacklisted) {
       return res.status(403).json({ message: 'Session expired. Please login again.' });
     }
 
     // Verifikasi token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+    console.log("Decoded token:", decoded); // Lihat informasi dalam token untuk memastikan semuanya sesuai
+
 
     return res.status(200).json({ message: 'Session is active', user: decoded });
   } catch (err) {

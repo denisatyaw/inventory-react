@@ -3,8 +3,8 @@ const { getAllMenus, createMenu, updateMenu, deleteMenu } = require("../controll
 
 const router = express.Router();
 
-router.get("/menus", getAllMenus);
-router.post("/menus", createMenu);
+router.get("/get-menu", getAllMenus);
+router.post("/add-menus", createMenu);
 router.put("/menus/:menu_id", updateMenu);
 router.delete("/menus/:menu_id", deleteMenu);
 
