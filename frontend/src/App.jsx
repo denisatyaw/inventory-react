@@ -1,145 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
-import ThemeCustomizer from './components/ThemeCustomizer';
-import Login from './pages/Login';
-import NotFound from './pages/NotFound';
-import Maintenance from './pages/Maintenance';
-import Unauthorized from './pages/Unauthorized';
-import ServerError from './pages/ServerError';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { NotificationProvider } from './context/NotificationContext';
+import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
-import UserList from './pages/UserList';
-import Products from './pages/Products';
-import Reports from './pages/Reports';
-import Analytics from './pages/Analytics';
-import Calendar from './pages/Calendar';
-import Messages from './pages/Messages';
-import Chat from './pages/Chat';
-import Security from './pages/Security';
-import Settings from './pages/Settings';
-import KanbanBoard from './pages/Kanban';
+import UsersList from './pages/users/UsersList';
+import Roles from './pages/users/Roles';
+import Permissions from './pages/users/Permissions';
+import TodoList from './pages/pages/TodoList';
+import BasicTable from './pages/tables/BasicTable';
+import DataTable from './pages/tables/DataTable';
+import AdvancedTable from './pages/tables/AdvancedTable';
+import BasicForm from './pages/forms/BasicForm';
+import InputGroups from './pages/forms/InputGroups';
+import CheckboxRadio from './pages/forms/CheckboxRadio';
+import DateTimePicker from './pages/forms/DateTimePicker';
+import ButtonTemplates from './pages/buttons/ButtonTemplates';
+import CardTemplates from './pages/cards/CardTemplates';
+import ModalTemplates from './pages/ui/ModalTemplates';
+import NotificationTemplates from './pages/ui/NotificationTemplates';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 
-const MAX_TABS = 10;
-
-// Simulated authentication check
-const isAuthenticated = () => {
-  return localStorage.getItem('isAuthenticated') === 'true';
-};
-
-// Protected Route wrapper component
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+// Placeholder pages
+const Products = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Products</h1></div>;
+const Categories = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Categories</h1></div>;
+const Inventory = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Inventory</h1></div>;
+const Orders = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Orders</h1></div>;
+const Settings = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Settings</h1></div>;
 
 function App() {
-  const [openTabs, setOpenTabs] = useState([
-    { id: 'dashboard', title: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' }
-  ]);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [theme, setTheme] = useState({
-    primary: 'blue',
-    accent: 'amber',
-    mode: 'light'
-  });
-
-  // Simulated maintenance mode check
-  const isMaintenanceMode = false;
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.className = `${theme.mode === 'dark' ? 'dark' : ''} theme-${theme.primary} accent-${theme.accent}`;
-  }, [theme]);
-
-  const handleAddTab = (tab) => {
-    if (openTabs.find(t => t.id === tab.id)) {
-      setActiveTab(tab.id);
-      return;
-    }
-
-    if (openTabs.length >= MAX_TABS) {
-      alert(`Maximum ${MAX_TABS} tabs allowed`);
-      return;
-    }
-
-    setOpenTabs(prev => [...prev, tab]);
-    setActiveTab(tab.id);
-  };
-
-  const handleCloseTab = (tabId) => {
-    setOpenTabs(prev => {
-      const tabIndex = prev.findIndex(tab => tab.id === tabId);
-      const newTabs = prev.filter(tab => tab.id !== tabId);
-
-      if (activeTab === tabId) {
-        if (tabIndex < prev.length - 1) {
-          setActiveTab(prev[tabIndex + 1].id);
-        } else if (tabIndex > 0) {
-          setActiveTab(prev[tabIndex - 1].id);
-        } else {
-          const dashboardTab = { id: 'dashboard', title: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' };
-          setOpenTabs([dashboardTab]);
-          setActiveTab('dashboard');
-          return [dashboardTab];
-        }
-      }
-
-      return newTabs.length > 0 ? newTabs : [{ id: 'dashboard', title: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' }];
-    });
-  };
-
-  if (isMaintenanceMode) {
-    return <Maintenance />;
-  }
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/maintenance" element={<Maintenance />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/server-error" element={<ServerError />} />
-        
-        <Route path="/*" element={
-          <ProtectedRoute>
-            <div className={`flex h-screen bg-gray-100`}>
-              <Sidebar onMenuClick={handleAddTab} theme={theme} />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <Navbar
-                  tabs={openTabs}
-                  activeTab={activeTab}
-                  onTabClick={setActiveTab}
-                  onCloseTab={handleCloseTab}
-                  theme={theme}
-                  maxTabs={MAX_TABS}
-                />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/users" element={<UserList />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/reports/*" element={<Reports />} />
-                    <Route path="/analytics/*" element={<Analytics />} />
-                    <Route path="/calendar" element={<Calendar />} />
-                    <Route path="/messages/*" element={<Messages />} />
-                    <Route path="/chat" element={<Chat />} />
-                    <Route path="/security/*" element={<Security />} />
-                    <Route path="/settings/*" element={<Settings />} />
-                    <Route path="/kanban" element={<KanbanBoard />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-              </div>
-              <ThemeCustomizer theme={theme} onThemeChange={setTheme} />
-            </div>
-          </ProtectedRoute>
-        } />
-      </Routes>
-    </Router>
+    <NotificationProvider>
+      <Router>
+        <Routes>
+          {/* Auth routes */}
+          <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/register" element={<Register />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/reset-password" element={<ResetPassword />} />
+
+          {/* Protected routes */}
+          <Route path="/" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/users" element={<Layout><UsersList /></Layout>} />
+          <Route path="/roles" element={<Layout><Roles /></Layout>} />
+          <Route path="/permissions" element={<Layout><Permissions /></Layout>} />
+          <Route path="/pages/todo" element={<Layout><TodoList /></Layout>} />
+          <Route path="/products" element={<Layout><Products /></Layout>} />
+          <Route path="/categories" element={<Layout><Categories /></Layout>} />
+          <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+          <Route path="/orders" element={<Layout><Orders /></Layout>} />
+          <Route path="/settings" element={<Layout><Settings /></Layout>} />
+          <Route path="/tables/basic" element={<Layout><BasicTable /></Layout>} />
+          <Route path="/tables/data" element={<Layout><DataTable /></Layout>} />
+          <Route path="/tables/advanced" element={<Layout><AdvancedTable /></Layout>} />
+          <Route path="/forms/basic" element={<Layout><BasicForm /></Layout>} />
+          <Route path="/forms/input-groups" element={<Layout><InputGroups /></Layout>} />
+          <Route path="/forms/checkbox-radio" element={<Layout><CheckboxRadio /></Layout>} />
+          <Route path="/forms/datetime" element={<Layout><DateTimePicker /></Layout>} />
+          <Route path="/buttons" element={<Layout><ButtonTemplates /></Layout>} />
+          <Route path="/cards" element={<Layout><CardTemplates /></Layout>} />
+          <Route path="/modals" element={<Layout><ModalTemplates /></Layout>} />
+          <Route path="/notifications" element={<Layout><NotificationTemplates /></Layout>} />
+        </Routes>
+      </Router>
+    </NotificationProvider>
   );
 }
 
