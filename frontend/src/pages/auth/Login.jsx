@@ -51,7 +51,7 @@ const Login = () => {
       login(response.data.token);
       navigate('/');
     } catch (error) {
-      alert('Login failed!');
+      alert('Login failed');
     }
   };
 
