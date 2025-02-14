@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Bell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { logout } from '../../services/authService';
 
 const Navbar = ({ isSidebarCollapsed }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -51,7 +52,6 @@ const Navbar = ({ isSidebarCollapsed }) => {
   const handleTabClose = (e, index) => {
     e.stopPropagation();
     if (tabs.length > 1) {
-      // Prevent closing the Dashboard tab
       if (tabs[index].path === '/') {
         return;
       }
@@ -64,11 +64,15 @@ const Navbar = ({ isSidebarCollapsed }) => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <nav className="fixed top-0 right-0 h-16 bg-white border-b border-gray-200 z-40"
          style={{ width: `calc(100% - ${isSidebarCollapsed ? '5rem' : '16rem'})` }}>
       <div className="h-full px-4 flex items-center">
-        {/* Center section - Tabs */}
         <div className="flex-1 flex items-center overflow-x-auto hide-scrollbar">
           <div className="flex space-x-1">
             {tabs.map((tab, index) => (
@@ -82,7 +86,6 @@ const Navbar = ({ isSidebarCollapsed }) => {
                 }`}
               >
                 <span className="text-sm font-medium whitespace-nowrap">{tab.title}</span>
-                {/* Only show close button if it's not the Dashboard tab */}
                 {tab.path !== '/' && tabs.length > 1 && (
                   <button
                     onClick={(e) => handleTabClose(e, index)}
@@ -96,7 +99,6 @@ const Navbar = ({ isSidebarCollapsed }) => {
           </div>
         </div>
 
-        {/* Right section - Notifications and Profile */}
         <div className="flex items-center gap-4 min-w-[120px]">
           <button className="p-2 hover:bg-gray-100 rounded-full relative">
             <Bell size={20} />
@@ -122,9 +124,7 @@ const Navbar = ({ isSidebarCollapsed }) => {
                 </div>
                 <button
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  onClick={() => {
-                    console.log('Logout clicked');
-                  }}
+                  onClick={handleLogout}
                 >
                   <LogOut size={16} />
                   <span>Logout</span>
