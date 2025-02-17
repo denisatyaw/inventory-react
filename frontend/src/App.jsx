@@ -23,11 +23,7 @@ import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import ProtectedRoute from './routes/protectedRoutes';
-import axios from 'axios';
-import { setAuthHeader } from './services/authService';
 
-// Set token ke header axios
-setAuthHeader(axios); 
 
 // Placeholder pages
 const Products = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Products</h1></div>;

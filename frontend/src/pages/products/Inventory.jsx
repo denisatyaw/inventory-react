@@ -36,8 +36,6 @@ const Inventory = () => {
       status: 'Low Stock',
       lastUpdated: '2024-03-09',
       trend: 'down',
-      supplier: Continuing the Inventory.jsx file content exactly where it left off:
-
       supplier: 'Comfort Plus',
       location: 'Warehouse B',
       value: 4499.85

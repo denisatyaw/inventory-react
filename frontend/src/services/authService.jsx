@@ -1,32 +1,72 @@
-// authService.jsx
+// authService.js
+import axiosInstance from "../config/axiosConfig";
 
-// Simpan token ke localStorage
-export const login = (token) => {
-  localStorage.setItem('token', token);
+const API_URL = "/auth/";
+
+// ✅ Simpan token di sessionStorage
+const saveToken = (token) => {
+  sessionStorage.setItem("token", token);
 };
 
-// Hapus token dari localStorage (logout)
-export const logout = () => {
-  localStorage.removeItem('token');
+// ✅ Ambil token dari sessionStorage
+const getToken = () => {
+  return sessionStorage.getItem("token");
 };
 
-// Ambil token dari localStorage
-export const getToken = () => {
-  return localStorage.getItem('token');
+// ✅ Hapus token saat logout
+const removeToken = () => {
+  sessionStorage.removeItem("token");
 };
 
-// Cek apakah pengguna sudah login (ada token)
-export const isAuthenticated = () => {
-  const token = getToken();
-  return !!token; // Mengembalikan true jika token ada, false jika tidak
-};
+// ✅ Login
+const login = async (username, password, role) => {
+  try {
+    const response = await axiosInstance.post(API_URL + "login", {
+      username,
+      password,
+      role,
+    });
 
-// Fungsi untuk menambahkan token ke header axios
-export const setAuthHeader = (axiosInstance) => {
-  const token = getToken();
-  if (token) {
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete axiosInstance.defaults.headers.common['Authorization'];
+    if (response.data?.data?.token) {
+      saveToken(response.data.data.token);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
   }
 };
+
+// ✅ Logout
+const logout = async () => {
+  try {
+    await axiosInstance.post(API_URL + "logout"); // Logout API
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
+    removeToken();
+  }
+};
+
+// ✅ Cek apakah pengguna sudah login
+const isAuthenticated = () => {
+  return !!getToken();
+};
+
+// ✅ Ambil user saat ini dari token (jika backend mengembalikan data user)
+const getCurrentUser = () => {
+  const token = getToken();
+  return token ? JSON.parse(atob(token.split(".")[1])) : null;
+};
+
+// ✅ Export authService
+const AuthService = {
+  login,
+  logout,
+  isAuthenticated,
+  getToken,
+  getCurrentUser,
+};
+
+export default AuthService;
