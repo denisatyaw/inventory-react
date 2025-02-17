@@ -1,99 +1,51 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, LayoutDashboard, Users, Settings, Box, Table2, FormInput, Palette, Menu, MessageSquare, Bell, FileText, ListTodo } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { ChevronDown, ChevronRight, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Box, Table2, FormInput, Palette, Settings, FileText } from 'lucide-react'; // Impor semua icon yang mungkin
 import { NavLink } from 'react-router-dom';
 
-const menuItems = [
-  {
-    title: 'Dashboard',
-    icon: <LayoutDashboard size={20} />,
-    path: '/'
-  },
-  {
-    title: 'User Management',
-    icon: <Users size={20} />,
-    submenu: [
-      { title: 'Users List', path: '/users' },
-      { title: 'Roles', path: '/roles' },
-      { title: 'Permissions', path: '/permissions' }
-    ]
-  },
-  {
-    title: 'Products',
-    icon: <Box size={20} />,
-    submenu: [
-      { title: 'All Products', path: '/products' },
-      { title: 'Categories', path: '/categories' },
-      { title: 'Inventory', path: '/inventory' }
-    ]
-  },
-  {
-    title: 'Pages',
-    icon: <FileText size={20} />,
-    submenu: [
-      { title: 'Todo List', path: '/pages/todo' }
-    ]
-  },
-  {
-    title: 'Tables',
-    icon: <Table2 size={20} />,
-    submenu: [
-      { title: 'Basic Table', path: '/tables/basic' },
-      { title: 'Data Table', path: '/tables/data' },
-      { title: 'Advanced Table', path: '/tables/advanced' }
-    ]
-  },
-  {
-    title: 'Forms',
-    icon: <FormInput size={20} />,
-    submenu: [
-      { title: 'Basic Form', path: '/forms/basic' },
-      { title: 'Input Groups', path: '/forms/input-groups' },
-      { title: 'Checkbox & Radio', path: '/forms/checkbox-radio' },
-      { title: 'Date & Time', path: '/forms/datetime' }
-    ]
-  },
-  {
-    title: 'UI Elements',
-    icon: <Palette size={20} />,
-    submenu: [
-      { title: 'Buttons', path: '/buttons' },
-      { title: 'Cards', path: '/cards' },
-      { title: 'Modals', path: '/modals' },
-      { title: 'Notifications', path: '/notifications' }
-    ]
-  },
-  {
-    title: 'Settings',
-    icon: <Settings size={20} />,
-    path: '/settings'
-  }
-];
+// Mapping icon string ke komponen icon yang sesuai
+const iconMapping = {
+  LayoutDashboard: <LayoutDashboard size={20} />,
+  Users: <Users size={20} />,
+  Box: <Box size={20} />,
+  Table2: <Table2 size={20} />,
+  FormInput: <FormInput size={20} />,
+  Palette: <Palette size={20} />,
+  Settings: <Settings size={20} />,
+  FileText: <FileText size={20} />,
+};
 
+// MenuItem untuk menangani submenu dan icon
 const MenuItem = ({ item, isCollapsed }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  if (item.submenu) {
+  const renderIcon = (iconName) => {
+    return iconMapping[iconName] || <div className="w-5 h-5" />; // Jika icon tidak ditemukan, tampilkan div kosong
+  };
+
+  if (item.children && item.children.length > 0) {
     return (
       <div className="mb-1">
         <button
           className="w-full flex items-center justify-between px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           onClick={() => !isCollapsed && setIsOpen(!isOpen)}
-          title={isCollapsed ? item.title : undefined}
+          title={isCollapsed ? item.name : undefined}
         >
           <div className="flex items-center">
             <div className="w-5 h-5 flex items-center justify-center">
-              {item.icon}
+              {renderIcon(item.icon)}
             </div>
-            {!isCollapsed && <span className="ml-3">{item.title}</span>}
+            {!isCollapsed && <span className="ml-3">{item.name}</span>}
           </div>
           {!isCollapsed && (isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
         </button>
         {!isCollapsed && isOpen && (
           <div className="ml-8 mt-1 space-y-1">
-            {item.submenu.map((subItem, index) => (
+            {item.children.map((subItem, index) => (
               <NavLink
                 key={index}
-                to={subItem.path}
+                to={subItem.route}
                 className={({ isActive }) =>
                   `block px-4 py-2 text-sm ${
                     isActive
@@ -102,7 +54,7 @@ const MenuItem = ({ item, isCollapsed }) => {
                   }`
                 }
               >
-                {subItem.title}
+                {subItem.name}
               </NavLink>
             ))}
           </div>
@@ -113,7 +65,7 @@ const MenuItem = ({ item, isCollapsed }) => {
 
   return (
     <NavLink
-      to={item.path}
+      to={item.route}
       className={({ isActive }) =>
         `flex items-center px-4 py-2 mb-1 ${
           isActive
@@ -121,17 +73,35 @@ const MenuItem = ({ item, isCollapsed }) => {
             : 'text-gray-600 hover:bg-gray-100 rounded-lg'
         }`
       }
-      title={isCollapsed ? item.title : undefined}
+      title={isCollapsed ? item.name : undefined}
     >
       <div className="w-5 h-5 flex items-center justify-center">
-        {item.icon}
+        {renderIcon(item.icon)}
       </div>
-      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+      {!isCollapsed && <span className="ml-3">{item.name}</span>}
     </NavLink>
   );
 };
 
 const Sidebar = ({ isCollapsed, onToggleSidebar }) => {
+  const [menuItems, setMenuItems] = useState([]);
+
+  // Ambil data menu dari API
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/menu/get-menu');
+        if (response.data.success) {
+          setMenuItems(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching menu data:", error);
+      }
+    };
+
+    fetchMenuData();
+  }, []);
+
   return (
     <aside className="fixed top-0 left-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50"
       style={{ width: isCollapsed ? '5rem' : '16rem' }}>

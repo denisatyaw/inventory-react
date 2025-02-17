@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Bell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { logout } from '../../services/authService';
+import AuthService from '../../services/authService';
 
 const Navbar = ({ isSidebarCollapsed }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -65,9 +65,13 @@ const Navbar = ({ isSidebarCollapsed }) => {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    AuthService.logout();  // Hapus token dari sessionStorage
+  
+    setTimeout(() => {
+      navigate('/auth/login', { replace: true });
+    }, 500);
   };
+  
 
   return (
     <nav className="fixed top-0 right-0 h-16 bg-white border-b border-gray-200 z-40"
