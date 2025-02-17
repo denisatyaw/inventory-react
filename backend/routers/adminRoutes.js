@@ -6,11 +6,9 @@ const { addRoleToUser } = require('../controllers/userController');
 
 const router = express.Router();
 
-router.use(authenticateToken, authorizeRoles('admin'));
-
 // Rute khusus admin
-router.get('/dashboard', getAdminDashboard);
+router.get('/dashboard', authenticateToken, authorizeRoles('admin'), getAdminDashboard);
 
-router.post('/auth/add-role', addRoleToUser);
+router.post('/auth/add-role', authenticateToken, authorizeRoles('admin'), addRoleToUser);
 
 module.exports = router;

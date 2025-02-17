@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get("/get-menu", getAllMenus);
 router.post("/add-menus", createMenu);
+
 router.put("/menus/:menu_id", updateMenu);
 router.delete("/menus/:menu_id", deleteMenu);
 

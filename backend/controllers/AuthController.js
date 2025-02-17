@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User, Role } = require('../models');
 const ResponseApiHandler = require('../utils/ResponseApiHandler');
+const redisClient = require('../config/redis');
 
 const loginUser = async (req, res) => {
   const { username, password, role } = req.body;
@@ -60,7 +61,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Ambil token dari header Authorization
-
+  console.log("Token:", token);
   if (!token) {
     return ResponseApiHandler.error(res, 'Token is required', null, 400);
   }
@@ -155,13 +156,34 @@ const googleLoginCallback = async (req, res) => {
       { expiresIn: '1h' } // Set expired time sesuai kebutuhan
     );
 
-    // Kirim response dengan token
-    return ResponseApiHandler.success(res, 'Login successful', { token });
+    // Kirim response berupa HTML untuk mengirimkan pesan ke jendela popup
+    res.send(`
+      <html>
+        <head>
+          <script type="text/javascript">
+            // Kirim token ke jendela induk (frontend)
+            window.opener.postMessage({
+              status: 'success',
+              message: 'Login successful',
+              data: { token: '${token}' }
+            }, "http://localhost:3001");
+
+            // Tutup popup setelah token dikirim
+            window.close();
+          </script>
+        </head>
+        <body>
+          <p>Closing window...</p>
+        </body>
+      </html>
+    `);
+
   } catch (err) {
     console.error(err);
     return ResponseApiHandler.error(res, 'Server error', err.message);
   }
 };
+
 
 
 module.exports = { 
