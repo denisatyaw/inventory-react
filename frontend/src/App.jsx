@@ -23,6 +23,7 @@ import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import ProtectedRoute from './routes/protectedRoutes';
+import MenuManagement from './pages/settings/MenuManagement';
 
 
 // Placeholder pages
@@ -66,6 +67,7 @@ function App() {
             <Route path="/cards" element={<Layout><CardTemplates /></Layout>} />
             <Route path="/modals" element={<Layout><ModalTemplates /></Layout>} />
             <Route path="/notifications" element={<Layout><NotificationTemplates /></Layout>} />
+            <Route path="/settings/menu" element={<Layout><MenuManagement /></Layout>} />
           </Route>
 
           {/* Redirect jika halaman tidak ditemukan */}

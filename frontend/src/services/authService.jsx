@@ -67,6 +67,7 @@ const AuthService = {
   isAuthenticated,
   getToken,
   getCurrentUser,
+  saveToken
 };
 
 export default AuthService;

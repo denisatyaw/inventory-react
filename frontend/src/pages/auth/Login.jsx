@@ -54,10 +54,12 @@ const Login = () => {
     );
 
     const messageListener = (event) => {
+      console.log("Received event:", event); // Debugging
       if (event.origin !== 'http://localhost:5000') return; // Validate the message origin
 
       if (event.data?.status === 'success') {
         const token = event.data.data.token;
+        console.log("Received token:", token); // Debugging
         AuthService.saveToken(token); // Save the token to sessionStorage
         windowReference.close(); // Close the popup window
         navigate('/'); // Navigate to dashboard

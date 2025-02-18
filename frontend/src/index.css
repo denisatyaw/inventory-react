@@ -10,3 +10,55 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* DataTables Custom Styling */
+.dataTables_wrapper .dataTables_length select {
+  @apply border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  @apply border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  @apply px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 mx-1;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  @apply bg-blue-50 text-blue-600 border-blue-500;
+}
+
+.dataTables_wrapper .dataTables_info {
+  @apply text-sm text-gray-500;
+}
+
+table.dataTable thead th {
+  @apply bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3 border-b border-gray-200;
+}
+
+table.dataTable tbody td {
+  @apply px-6 py-4 whitespace-nowrap border-b border-gray-200;
+}
+
+table.dataTable tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+table.dataTable tbody tr.selected {
+  @apply bg-blue-50;
+}
+
+.select-checkbox:before {
+  @apply w-4 h-4 border border-gray-300 rounded;
+  content: ' ';
+  margin: 7px 0 0 7px;
+  display: block;
+}
+
+table.dataTable tr.selected .select-checkbox:before {
+  @apply bg-blue-500 border-blue-500;
+  content: '✓';
+  color: white;
+  text-align: center;
+  line-height: 1;
+}
