@@ -9,7 +9,9 @@ const Menu = sequelize.define("Menu", {
     icon: { type: DataTypes.STRING, allowNull: true },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
     created_by: { type: DataTypes.INTEGER, allowNull: false },
-    updated_by: { type: DataTypes.INTEGER, allowNull: true }
+    updated_by: { type: DataTypes.INTEGER, allowNull: true },
+    parent_order: { type: DataTypes.INTEGER, allowNull: true }, 
+    submenu_order: { type: DataTypes.INTEGER, allowNull: true } 
 }, {
     timestamps: true,
     tableName: "Menus"

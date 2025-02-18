@@ -3,18 +3,33 @@ const Menu = require("../models/Menu");
 // Ambil Semua Menu dalam Format Tree
 const getAllMenus = async (req, res) => {
     try {
-        const menus = await Menu.findAll({ raw: true });
+        // Ambil semua menu yang aktif (is_active = true)
+        const menus = await Menu.findAll({
+            where: { is_active: true }, // Hanya ambil menu yang aktif
+            raw: true
+        });
+
+        // Bangun menu tree dengan pengurutan yang benar
         const menuTree = buildMenuTree(menus);
+
         res.json({ success: true, data: menuTree });
     } catch (err) {
         res.status(500).json({ success: false, message: "Server error", error: err.message });
     }
 };
 
-// Fungsi Membentuk Menu Tree
+// Fungsi Membentuk Menu Tree dengan Pengurutan
 const buildMenuTree = (menus, parentId = null) => {
     return menus
-        .filter(menu => menu.parent_id === parentId)
+        .filter(menu => menu.parent_id === parentId) // Filter berdasarkan parent_id
+        .sort((a, b) => {
+            // Urutkan parent menu berdasarkan parent_order, jika null urutkan berdasarkan nama
+            if (parentId === null) {
+                return (a.parent_order ?? Infinity) - (b.parent_order ?? Infinity) || a.name.localeCompare(b.name);
+            }
+            // Urutkan submenu berdasarkan submenu_order, jika null urutkan berdasarkan nama
+            return (a.submenu_order ?? Infinity) - (b.submenu_order ?? Infinity) || a.name.localeCompare(b.name);
+        })
         .map(menu => ({
             ...menu,
             children: buildMenuTree(menus, menu.menu_id) // Ambil submenu

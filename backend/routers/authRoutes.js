@@ -1,5 +1,5 @@
 const express = require('express');
-const { loginUser, logoutUser, checkSession, refreshToken, googleLoginCallback } = require('../controllers/AuthController');
+const { loginUser, logoutUser, checkSession, refreshToken, googleLoginCallback } = require('../controllers/authController');
 const router = express.Router();
 const passport = require('passport');
 
@@ -11,8 +11,6 @@ router.post('/refresh-token', refreshToken);
 
 // Route untuk mengarahkan user ke Google untuk login
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-// Route callback setelah login sukses di Google
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/' }), googleLoginCallback);
 
 module.exports = router;

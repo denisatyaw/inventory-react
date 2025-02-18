@@ -7,48 +7,52 @@ const registerUser = async (req, res) => {
   const { username, password, email, address, phone, roles } = req.body;
 
   try {
-      // Periksa apakah username atau email sudah digunakan
-      const existingUser = await User.findOne({ 
-          where: { 
-              [Op.or]: [{ username }, { email }] 
-          } 
-      });
+    // Periksa apakah username atau email sudah digunakan
+    console.log("body from FE", req.body);
+    const existingUser = await User.findOne({ 
+      where: { 
+        [Op.or]: [{ username }, { email }] 
+      } 
+    });
 
-      if (existingUser) {
-          return ResponseApiHandler.error(res, 'Username or Email already exists', null, 400);
-      }
+    if (existingUser) {
+      return ResponseApiHandler.error(res, 'Username or Email already exists', null, 400);
+    }
 
-      // Membuat pengguna baru dengan informasi tambahan
-      const newUser = await User.create({ 
-          username, 
-          password, 
-          email, 
-          address, 
-          phone 
-      });
+    // Membuat pengguna baru dengan informasi tambahan
+    const newUser = await User.create({ 
+      username, 
+      password, 
+      email, 
+      address, 
+      phone
+    });
 
-      // Menangani peran pengguna (roles)
-      if (roles && roles.length > 0) {
-          const roleRecords = await Role.findAll({ where: { name: roles } });
-          await newUser.addRoles(roleRecords);
+    // Menangani peran pengguna (roles)
+    if (roles && roles.length > 0) {
+      const roleRecords = await Role.findAll({ where: { name: roles } });
+      await newUser.addRoles(roleRecords);
+    } else {
+      // Jika tidak ada role yang diberikan, tambahkan role default dengan ID 2
+      const defaultRole = await Role.findByPk(2); // Role ID default adalah 2
+      if (defaultRole) {
+        await newUser.addRole(defaultRole);
       } else {
-          const defaultRole = await Role.findOne({ where: { name: 'user' } });
-          if (defaultRole) {
-              await newUser.addRole(defaultRole);
-          }
+        throw new Error('Default role not found');
       }
+    }
 
-      return ResponseApiHandler.success(res, 'User registered successfully', {
-          id: newUser.id,
-          username: newUser.username,
-          email: newUser.email,
-          address: newUser.address,
-          phone: newUser.phone
-      }, 201);
-      
+    return ResponseApiHandler.success(res, 'User registered successfully', {
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+      address: newUser.address,
+      phone: newUser.phone
+    }, 201);
+
   } catch (err) {
-      console.error(err);
-      return ResponseApiHandler.error(res, 'Server error', err.message);
+    console.error(err);
+    return ResponseApiHandler.error(res, 'Server error', err.message);
   }
 };
 
