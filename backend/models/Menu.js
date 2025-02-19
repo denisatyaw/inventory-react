@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require('../config/db');
+const User = require('./User'); // Import User model
 
 const Menu = sequelize.define("Menu", {
     menu_id: { type: DataTypes.STRING, primaryKey: true },
@@ -16,5 +17,8 @@ const Menu = sequelize.define("Menu", {
     timestamps: true,
     tableName: "Menus"
 });
+
+// Define association
+Menu.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 
 module.exports = Menu;
