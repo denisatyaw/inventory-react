@@ -4,7 +4,11 @@ import $ from 'jquery';
 import 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import 'datatables.net-select-dt';
-import './datatable.css';
+import 'datatables.net-dt/css/dataTables.dataTables.css'; 
+import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
+import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
+import 'datatables.net-select-dt/css/select.dataTables.css';
+// import './datatable.css';
 
 const DataTable = () => {
   const tableRef = useRef(null);
@@ -78,7 +82,9 @@ const DataTable = () => {
           defaultContent: '',
           orderable: false,
           className: 'select-checkbox',
-          width: '30px'
+          width: '30px',
+          // Remove the title property to avoid duplicate checkbox
+          // title: '<input type="checkbox" class="select-all"/>'
         },
         { 
           data: 'name',
@@ -137,35 +143,31 @@ const DataTable = () => {
       ],
       select: {
         style: 'multi',
-        selector: 'td:first-child'
+        selector: 'td:first-child',
       },
       responsive: true,
-      dom: '<"flex items-center justify-between mb-4"<"flex items-center gap-4"l<"custom-filter">>f>rtip',
+      dom: '<"flex flex-col sm:flex-row sm:items-center sm:justify-between"<"flex items-center gap-4"l<"custom-filter">>f>rt<"flex items-center justify-between border-t border-gray-200 pt-3"<"flex items-center text-gray-600"i><"flex items-center gap-2"p>>',
+      pageLength: 10,
       language: {
         search: '',
         searchPlaceholder: 'Search...',
-        lengthMenu: 'Show _MENU_ entries'
+        lengthMenu: 'Show _MENU_ entries',
+        info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+        paginate: {
+          first: '«',
+          previous: '‹',
+          next: '›',
+          last: '»'
+        }
       },
       initComplete: function() {
-        // Add custom filter dropdown
-        const filterHtml = `
-          <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-            <option value="">All Departments</option>
-            <option value="IT">IT</option>
-            <option value="HR">HR</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Sales">Sales</option>
-          </select>
-        `;
-        $('.custom-filter').html(filterHtml);
-
-        // Add custom filter functionality
-        $('.custom-filter select').on('change', function() {
-          const val = $(this).val();
-          dataTableRef.current
-            .column(2)
-            .search(val)
-            .draw();
+        const api = this.api();
+        $(api.table().container()).on('click', 'thead .select-all', function() {
+          if ($(this).is(':checked')) {
+            api.rows({ page: 'current' }).select();
+          } else {
+            api.rows({ page: 'current' }).deselect();
+          }
         });
       }
     });

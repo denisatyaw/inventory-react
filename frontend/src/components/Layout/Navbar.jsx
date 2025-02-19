@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { User, LogOut, Bell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import AuthService from '../../services/authService';
+import { AuthContext } from '../../context/AuthContext';
 
 const Navbar = ({ isSidebarCollapsed }) => {
+  const { user } = useContext(AuthContext);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
   const location = useLocation();
@@ -117,7 +119,7 @@ const Navbar = ({ isSidebarCollapsed }) => {
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                 <User size={20} className="text-white" />
               </div>
-              <span className="hidden sm:inline text-sm font-medium">John Doe</span>
+              <span className="hidden sm:inline text-sm font-medium">{user.username}</span>
             </button>
 
             {isProfileOpen && (
