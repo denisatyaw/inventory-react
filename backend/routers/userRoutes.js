@@ -15,8 +15,8 @@ router.get('/get-roles', userController.getRoles);
 router.post('/create-role', userController.createRole);
 
 
-router.get('/get-users', authenticateToken, authorizeRoles('admin'), userController.getUsers);
-router.patch('/delete/:userId', authenticateToken, authorizeRoles('admin'), userController.softDeleteUser);
-router.patch('/restore/:userId', authenticateToken, authorizeRoles('admin'), userController.restoreUser);
+router.get('/get-users', authenticateToken, authorizeRoles('Admin'), userController.getUsers);
+router.patch('/delete/:userId', authenticateToken, authorizeRoles('Admin'), userController.softDeleteUser);
+router.patch('/restore/:userId', authenticateToken, authorizeRoles('Admin'), userController.restoreUser);
 
 module.exports = router;

@@ -85,25 +85,25 @@ const checkSession = async (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1];
   console.log("token", token);
   if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
+    return ResponseApiHandler.unauthorized(res, 'No token provided');
   }
 
   try {
+    // Verifikasi token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded); // Lihat informasi dalam token untuk memastikan semuanya sesuai
+
     // Cek apakah token masuk dalam blacklist di Redis
     const isBlacklisted = await redisClient.get(`blacklist_${token}`);
     console.log("Is blacklisted:", isBlacklisted);
     if (isBlacklisted) {
-      return res.status(403).json({ message: 'Session expired. Please login again.' });
+      return ResponseApiHandler.error(res, 'Session expired. Please login again.', null, 403);
     }
 
-    // Verifikasi token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
-    console.log("Decoded token:", decoded); // Lihat informasi dalam token untuk memastikan semuanya sesuai
-
-
-    return res.status(200).json({ message: 'Session is active', user: decoded });
+    return ResponseApiHandler.success(res, 'Session is active', { user: decoded });
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    console.error(err);
+    return ResponseApiHandler.error(res, 'Invalid or expired token', null, 403);
   }
 };
 
