@@ -18,6 +18,24 @@ const removeToken = () => {
   sessionStorage.removeItem("token");
 };
 
+// ✅ Dekode token untuk mendapatkan info user
+const decodeToken = (token) => {
+  try {
+    const base64Url = token.split(".")[1]; // Ambil payload dari token
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64)); // Dekode base64 ke objek JSON
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    return null;
+  }
+};
+
+// ✅ Ambil user saat ini dari token
+const getCurrentUser = () => {
+  const token = getToken();
+  return token ? decodeToken(token) : null;
+};
+
 // ✅ Login
 const login = async (username, password, role) => {
   try {
@@ -49,16 +67,25 @@ const logout = async () => {
   }
 };
 
-// ✅ Cek apakah pengguna sudah login
-const isAuthenticated = () => {
-  return !!getToken();
+// ✅ Cek apakah pengguna sudah login dengan validasi session di backend
+const isAuthenticated = async () => {
+  const token = getToken();
+  console.log(token);
+  if (!token) return false;
+
+  try {
+    const response = await axiosInstance.get(API_URL + "check-session", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log(response.data);
+    return response.data?.status === "success";
+  } catch (error) {
+    console.error("Session check failed:", error.response?.data || error.message);
+    removeToken(); // Hapus token jika sesi tidak valid
+    return false;
+  }
 };
 
-// ✅ Ambil user saat ini dari token (jika backend mengembalikan data user)
-const getCurrentUser = () => {
-  const token = getToken();
-  return token ? JSON.parse(atob(token.split(".")[1])) : null;
-};
 
 // ✅ Export authService
 const AuthService = {
@@ -67,7 +94,7 @@ const AuthService = {
   isAuthenticated,
   getToken,
   getCurrentUser,
-  saveToken
+  saveToken,
 };
 
 export default AuthService;

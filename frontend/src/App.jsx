@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { NotificationProvider } from './context/NotificationContext';
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import UsersList from './pages/users/UsersList';
@@ -25,7 +26,6 @@ import ResetPassword from './pages/auth/ResetPassword';
 import ProtectedRoute from './routes/protectedRoutes';
 import MenuManagement from './pages/settings/MenuManagement';
 
-
 // Placeholder pages
 const Products = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Products</h1></div>;
 const Categories = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 className="text-2xl font-semibold">Categories</h1></div>;
@@ -35,46 +35,48 @@ const Settings = () => <div className="bg-white p-6 rounded-lg shadow-sm"><h1 cl
 
 function App() {
   return (
-    <NotificationProvider>
-      <Router>
-        <Routes>
-          {/* Auth routes (Tanpa proteksi) */}
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          <Route path="/auth/reset-password" element={<ResetPassword />} />
+    <AuthProvider>
+      <NotificationProvider>
+        <Router>
+          <Routes>
+            {/* Auth routes (Tanpa proteksi) */}
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/register" element={<Register />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Layout><Dashboard /></Layout>} />
-            <Route path="/users" element={<Layout><UsersList /></Layout>} />
-            <Route path="/roles" element={<Layout><Roles /></Layout>} />
-            <Route path="/permissions" element={<Layout><Permissions /></Layout>} />
-            <Route path="/pages/todo" element={<Layout><TodoList /></Layout>} />
-            <Route path="/products" element={<Layout><Products /></Layout>} />
-            <Route path="/categories" element={<Layout><Categories /></Layout>} />
-            <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
-            <Route path="/orders" element={<Layout><Orders /></Layout>} />
-            <Route path="/settings" element={<Layout><Settings /></Layout>} />
-            <Route path="/tables/basic" element={<Layout><BasicTable /></Layout>} />
-            <Route path="/tables/data" element={<Layout><DataTable /></Layout>} />
-            <Route path="/tables/advanced" element={<Layout><AdvancedTable /></Layout>} />
-            <Route path="/forms/basic" element={<Layout><BasicForm /></Layout>} />
-            <Route path="/forms/input-groups" element={<Layout><InputGroups /></Layout>} />
-            <Route path="/forms/checkbox-radio" element={<Layout><CheckboxRadio /></Layout>} />
-            <Route path="/forms/datetime" element={<Layout><DateTimePicker /></Layout>} />
-            <Route path="/buttons" element={<Layout><ButtonTemplates /></Layout>} />
-            <Route path="/cards" element={<Layout><CardTemplates /></Layout>} />
-            <Route path="/modals" element={<Layout><ModalTemplates /></Layout>} />
-            <Route path="/notifications" element={<Layout><NotificationTemplates /></Layout>} />
-            <Route path="/settings/menu" element={<Layout><MenuManagement /></Layout>} />
-          </Route>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Layout><Dashboard /></Layout>} />
+              <Route path="/users" element={<Layout><UsersList /></Layout>} />
+              <Route path="/roles" element={<Layout><Roles /></Layout>} />
+              <Route path="/permissions" element={<Layout><Permissions /></Layout>} />
+              <Route path="/pages/todo" element={<Layout><TodoList /></Layout>} />
+              <Route path="/products" element={<Layout><Products /></Layout>} />
+              <Route path="/categories" element={<Layout><Categories /></Layout>} />
+              <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+              <Route path="/orders" element={<Layout><Orders /></Layout>} />
+              <Route path="/settings" element={<Layout><Settings /></Layout>} />
+              <Route path="/tables/basic" element={<Layout><BasicTable /></Layout>} />
+              <Route path="/tables/data" element={<Layout><DataTable /></Layout>} />
+              <Route path="/tables/advanced" element={<Layout><AdvancedTable /></Layout>} />
+              <Route path="/forms/basic" element={<Layout><BasicForm /></Layout>} />
+              <Route path="/forms/input-groups" element={<Layout><InputGroups /></Layout>} />
+              <Route path="/forms/checkbox-radio" element={<Layout><CheckboxRadio /></Layout>} />
+              <Route path="/forms/datetime" element={<Layout><DateTimePicker /></Layout>} />
+              <Route path="/buttons" element={<Layout><ButtonTemplates /></Layout>} />
+              <Route path="/cards" element={<Layout><CardTemplates /></Layout>} />
+              <Route path="/modals" element={<Layout><ModalTemplates /></Layout>} />
+              <Route path="/notifications" element={<Layout><NotificationTemplates /></Layout>} />
+              <Route path="/settings/menu" element={<Layout><MenuManagement /></Layout>} />
+            </Route>
 
-          {/* Redirect jika halaman tidak ditemukan */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
-    </NotificationProvider>
+            {/* Redirect jika halaman tidak ditemukan */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+      </NotificationProvider>
+    </AuthProvider>
   );
 }
 

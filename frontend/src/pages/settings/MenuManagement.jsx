@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Plus, Search, Edit2, Trash2, ChevronRight, Save } from 'lucide-react';
 import * as Icons from 'lucide-react';
-// import DataTable from 'datatables.net-react';
-// import DT from 'datatables.net-dt'
-
-// import '../../App.css';
+import $ from 'jquery';
+import 'datatables.net-dt';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-select-dt';
+import 'datatables.net-dt/css/dataTables.dataTables.css'; 
+import 'datatables.net-select-dt/css/select.dataTables.css';
+import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const MenuManagement = () => {
+  const { user } = useContext(AuthContext);
+  console.log("user", user);
+  const tableRef = useRef(null);
+  const dataTableRef = useRef(null);
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [formData, setFormData] = useState({
     menuId: '',
@@ -15,374 +24,89 @@ const MenuManagement = () => {
     route: '',
     icon: '',
     is_active: true,
-    created_by: 'admin',
-    parent_order: 0,
-    submenu_order: 0
+    created_by: user ? user.userId : '',
+    creator_username: user ? user.username : '',
+    parent_order: '',
+    submenu_order: ''
   });
+  const [menuList, setMenuList] = useState([]);
+  const [parentMenuList, setParentMenuList] = useState([]);
 
-  // Current menu structure from the sidebar
-  const menuList = [
-    {
-      menuId: '100089',
-      name: 'Dashboard',
-      parent_id: null,
-      route: '/',
-      icon: 'LayoutDashboard',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 1,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100090',
-      name: 'Calendar',
-      parent_id: null,
-      route: '/calendar',
-      icon: 'Calendar',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 2,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100091',
-      name: 'User Management',
-      parent_id: null,
-      route: '#',
-      icon: 'Users',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 3,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100092',
-      name: 'Users List',
-      parent_id: '100091',
-      route: '/users',
-      icon: 'Users',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 3,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100093',
-      name: 'Roles',
-      parent_id: '100091',
-      route: '/roles',
-      icon: 'Shield',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 3,
-      submenu_order: 2,
-      level: 2
-    },
-    {
-      menuId: '100094',
-      name: 'Permissions',
-      parent_id: '100091',
-      route: '/permissions',
-      icon: 'Lock',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 3,
-      submenu_order: 3,
-      level: 2
-    },
-    {
-      menuId: '100095',
-      name: 'Products',
-      parent_id: null,
-      route: '#',
-      icon: 'Box',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 4,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100096',
-      name: 'All Products',
-      parent_id: '100095',
-      route: '/products',
-      icon: 'Box',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 4,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100097',
-      name: 'Categories',
-      parent_id: '100095',
-      route: '/categories',
-      icon: 'Tag',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 4,
-      submenu_order: 2,
-      level: 2
-    },
-    {
-      menuId: '100098',
-      name: 'Inventory',
-      parent_id: '100095',
-      route: '/inventory',
-      icon: 'Package',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 4,
-      submenu_order: 3,
-      level: 2
-    },
-    {
-      menuId: '100099',
-      name: 'Pages',
-      parent_id: null,
-      route: '#',
-      icon: 'FileText',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 5,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100100',
-      name: 'Todo List',
-      parent_id: '100099',
-      route: '/pages/todo',
-      icon: 'ListTodo',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 5,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100101',
-      name: 'Tables',
-      parent_id: null,
-      route: '#',
-      icon: 'Table2',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 6,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100102',
-      name: 'Basic Table',
-      parent_id: '100101',
-      route: '/tables/basic',
-      icon: 'Table2',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 6,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100103',
-      name: 'Data Table',
-      parent_id: '100101',
-      route: '/tables/data',
-      icon: 'Table2',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 6,
-      submenu_order: 2,
-      level: 2
-    },
-    {
-      menuId: '100104',
-      name: 'Advanced Table',
-      parent_id: '100101',
-      route: '/tables/advanced',
-      icon: 'Table2',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 6,
-      submenu_order: 3,
-      level: 2
-    },
-    {
-      menuId: '100105',
-      name: 'Forms',
-      parent_id: null,
-      route: '#',
-      icon: 'FormInput',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 7,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100106',
-      name: 'Basic Form',
-      parent_id: '100105',
-      route: '/forms/basic',
-      icon: 'FormInput',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 7,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100107',
-      name: 'Input Groups',
-      parent_id: '100105',
-      route: '/forms/input-groups',
-      icon: 'FormInput',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 7,
-      submenu_order: 2,
-      level: 2
-    },
-    {
-      menuId: '100108',
-      name: 'Checkbox & Radio',
-      parent_id: '100105',
-      route: '/forms/checkbox-radio',
-      icon: 'ToggleLeft',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 7,
-      submenu_order: 3,
-      level: 2
-    },
-    {
-      menuId: '100109',
-      name: 'Date & Time',
-      parent_id: '100105',
-      route: '/forms/datetime',
-      icon: 'Calendar',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 7,
-      submenu_order: 4,
-      level: 2
-    },
-    {
-      menuId: '100110',
-      name: 'UI Elements',
-      parent_id: null,
-      route: '#',
-      icon: 'Palette',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100111',
-      name: 'Buttons',
-      parent_id: '100110',
-      route: '/buttons',
-      icon: 'Square',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 1,
-      level: 2
-    },
-    {
-      menuId: '100112',
-      name: 'Cards',
-      parent_id: '100110',
-      route: '/cards',
-      icon: 'CreditCard',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 2,
-      level: 2
-    },
-    {
-      menuId: '100113',
-      name: 'Modals',
-      parent_id: '100110',
-      route: '/modals',
-      icon: 'Square',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 3,
-      level: 2
-    },
-    {
-      menuId: '100114',
-      name: 'Notifications',
-      parent_id: '100110',
-      route: '/notifications',
-      icon: 'Bell',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 4,
-      level: 2
-    },
-    {
-      menuId: '100115',
-      name: 'Utilities',
-      parent_id: '100110',
-      route: '/utilities',
-      icon: 'Tool',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 8,
-      submenu_order: 5,
-      level: 2
-    },
-    {
-      menuId: '100116',
-      name: 'Settings',
-      parent_id: null,
-      route: '#',
-      icon: 'Settings',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 9,
-      submenu_order: 0,
-      level: 1
-    },
-    {
-      menuId: '100117',
-      name: 'Menu Management',
-      parent_id: '100116',
-      route: '/settings/menu',
-      icon: 'Menu',
-      is_active: true,
-      created_by: 'admin',
-      parent_order: 9,
-      submenu_order: 1,
-      level: 2
+  // Fetch menu list from backend
+  const fetchMenuList = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/menu/get-all-menu-rows');
+      setMenuList(response.data.data);
+    } catch (error) {
+      console.error('Error fetching menu list:', error);
     }
-  ];
+  };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchMenuList();
+  }, []);
+
+  // Fetch parent menu list from backend
+  useEffect(() => {
+    const fetchParentMenuList = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/menu/get-parent-menu');
+        setParentMenuList(response.data.data);
+      } catch (error) {
+        console.error('Error fetching parent menu list:', error);
+      }
+    };
+
+    fetchParentMenuList();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    // Ensure created_by is always set to the current user's ID
+    const dataToSubmit = {
+      menu_id: formData.menuId,
+      name: formData.name,
+      is_active: formData.is_active,
+      created_by: user ? user.userId : formData.created_by,
+    };
+
+    if (formData.parent_id) dataToSubmit.parent_id = formData.parent_id;
+    if (formData.route) dataToSubmit.route = formData.route;
+    if (formData.icon) dataToSubmit.icon = formData.icon;
+    if (formData.parent_order) dataToSubmit.parent_order = formData.parent_order;
+    if (formData.submenu_order) dataToSubmit.submenu_order = formData.submenu_order;
+
+    try {
+      const response = await axios.post('http://localhost:5000/menu/upsert-menu', dataToSubmit, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`
+        }
+      });
+      console.log('Form submitted successfully:', response.data);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: response.data.message,
+      });
+      // Refresh the menu list
+      fetchMenuList();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error submitting the form. Please try again.',
+      });
+    }
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
+      // Ensure created_by is always set to the current user's ID
+      created_by: user ? user.userId : prev.created_by
     }));
   };
 
@@ -390,6 +114,83 @@ const MenuManagement = () => {
   const iconList = Object.keys(Icons).filter(key => 
     typeof Icons[key] === 'function' && key !== 'createLucideIcon'
   );
+
+  useEffect(() => {
+    if (menuList.length > 0) {
+      // Initialize DataTable
+      dataTableRef.current = $(tableRef.current).DataTable({
+        data: menuList,
+        columns: [
+          { data: 'menu_id', title: 'Menu ID' },
+          { data: 'name', title: 'Name' },
+          { data: 'parent_id', title: 'Parent ID' },
+          { data: 'route', title: 'Route' },
+          { data: 'icon', title: 'Icon' },
+          { data: 'is_active', title: 'Active', render: data => data ? 'Yes' : 'No' },
+          { data: 'creator.username', title: 'Created By' },
+          { data: 'created_by', title: 'Created By (Hidden)', visible: false },
+          { data: 'parent_order', title: 'Parent Order' },
+          { data: 'submenu_order', title: 'Submenu Order' }
+        ],
+        responsive: true,
+        dom: '<"flex flex-col sm:flex-row sm:items-center sm:justify-between"<"flex items-center gap-4"l<"custom-filter">>f>rt<"flex items-center justify-between border-t border-gray-200 pt-3"<"flex items-center text-gray-600"i><"flex items-center gap-2"p>>',
+        pageLength: 10,
+        language: {
+          search: '',
+          searchPlaceholder: 'Search...',
+          lengthMenu: 'Show _MENU_ entries',
+          info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+          paginate: {
+            first: '«',
+            previous: '‹',
+            next: '›',
+            last: '»'
+          }
+        }
+      });
+
+      // Add row click event
+      $(tableRef.current).on('click', 'tr', function () {
+        const data = dataTableRef.current.row(this).data();
+        if (data) {
+          setFormData({
+            menuId: data.menu_id,
+            name: data.name,
+            parent_id: data.parent_id || '',
+            route: data.route,
+            icon: data.icon,
+            is_active: data.is_active,
+            created_by: data.created_by,
+            creator_username: data.creator.username,
+            parent_order: data.parent_order || '',
+            submenu_order: data.submenu_order || ''
+          });
+        }
+      });
+
+      // Cleanup
+      return () => {
+        if (dataTableRef.current) {
+          dataTableRef.current.destroy();
+        }
+      };
+    }
+  }, [menuList]);
+
+  const resetForm = () => {
+    setFormData({
+      menuId: '',
+      name: '',
+      parent_id: '',
+      route: '',
+      icon: '',
+      is_active: true,
+      created_by: user ? user.userId : '',
+      creator_username: user ? user.username : '',
+      parent_order: '',
+      submenu_order: ''
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -440,14 +241,11 @@ const MenuManagement = () => {
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                 >
                   <option value="">None</option>
-                  {menuList
-                    .filter(menu => menu.level === 1)
-                    .map(menu => (
-                      <option key={menu.menuId} value={menu.menuId}>
-                        {menu.name}
-                      </option>
-                    ))
-                  }
+                  {parentMenuList.map(menu => (
+                    <option key={menu.menu_id} value={menu.menu_id}>
+                      {menu.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -466,30 +264,28 @@ const MenuManagement = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Icon</label>
-                <select
+                <input
+                  type="text"
                   name="icon"
                   value={formData.icon}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
-                >
-                  <option value="">Select an icon</option>
-                  {iconList.map(icon => (
-                    <option key={icon} value={icon}>
-                      {icon}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Enter icon name"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Created By</label>
-                <input
-                  type="text"
+                <select
                   name="created_by"
                   value={formData.created_by}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
-                  placeholder="Enter creator name"
-                />
+                  disabled
+                >
+                  <option value={formData.created_by}>
+                    {formData.creator_username}
+                  </option>
+                </select>
               </div>
             </div>
 
@@ -497,23 +293,23 @@ const MenuManagement = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Parent Order</label>
                 <input
-                  type="number"
+                  type="text"
                   name="parent_order"
                   value={formData.parent_order}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
-                  min="0"
+                  placeholder="Enter parent order"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Submenu Order</label>
                 <input
-                  type="number"
+                  type="text"
                   name="submenu_order"
                   value={formData.submenu_order}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
-                  min="0"
+                  placeholder="Enter submenu order"
                 />
               </div>
             </div>
@@ -534,17 +330,7 @@ const MenuManagement = () => {
             <div className="flex justify-end gap-2 pt-4">
               <button
                 type="button"
-                onClick={() => setFormData({
-                  menuId: '',
-                  name: '',
-                  parent_id: '',
-                  route: '',
-                  icon: '',
-                  is_active: true,
-                  created_by: 'admin',
-                  parent_order: 0,
-                  submenu_order: 0
-                })}
+                onClick={resetForm}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Reset
@@ -562,86 +348,9 @@ const MenuManagement = () => {
 
         {/* Menu List Section */}
         <div className="bg-white rounded-lg shadow-sm lg:col-span-2">
-          <div className="p-4 border-b border-gray-200">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={20} className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search menus..."
-              />
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Menu ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Level
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Parent
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {menuList.map((menu) => {
-                  const IconComponent = Icons[menu.icon] || Icons.File;
-                  const parentMenu = menuList.find(m => m.menuId === menu.parent_id);
-                  return (
-                    <tr key={menu.menuId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {menu.menuId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <IconComponent size={20} className="text-gray-400 mr-2" />
-                          <span className="text-sm font-medium text-gray-900">
-                            {menu.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        Level {menu.level}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {parentMenu ? parentMenu.name : '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {menu.parent_order}.{menu.submenu_order}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setSelectedMenu(menu)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+          <h2 className="text-lg font-medium p-4 border-b border-gray-200">Menu List</h2>
+          <div className="overflow-x-auto p-4">
+            <table ref={tableRef} className="w-full">
             </table>
           </div>
         </div>
