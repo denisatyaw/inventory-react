@@ -35,7 +35,7 @@ const MenuManagement = () => {
   // Fetch menu list from backend
   const fetchMenuList = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/menu/get-all-menu-rows');
+      const response = await axios.get('http://168.138.173.100:5000/menu/get-all-menu-rows');
       setMenuList(response.data.data);
     } catch (error) {
       console.error('Error fetching menu list:', error);
@@ -50,7 +50,7 @@ const MenuManagement = () => {
   useEffect(() => {
     const fetchParentMenuList = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/menu/get-parent-menu');
+        const response = await axios.get('http://168.138.173.100:5000/menu/get-parent-menu');
         setParentMenuList(response.data.data);
       } catch (error) {
         console.error('Error fetching parent menu list:', error);
@@ -77,7 +77,7 @@ const MenuManagement = () => {
     if (formData.submenu_order) dataToSubmit.submenu_order = formData.submenu_order;
 
     try {
-      const response = await axios.post('http://localhost:5000/menu/upsert-menu', dataToSubmit, {
+      const response = await axios.post('http://168.138.173.100:5000/menu/upsert-menu', dataToSubmit, {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('token')}`
         }

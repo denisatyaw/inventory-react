@@ -20,7 +20,7 @@ const Login = () => {
       return;
     }
     try {
-      const response = await axios.get(`http://localhost:5000/user/${username}/roles`);
+      const response = await axios.get(`http://168.138.173.100:5000/user/${username}/roles`);
       const fetchedRoles = response.data.data.roles || [];
       setRoles(fetchedRoles);
       setSelectedRole(fetchedRoles.length > 0 ? fetchedRoles[0] : '');
@@ -48,14 +48,14 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     const windowReference = window.open(
-      'http://localhost:5000/auth/google',
+      'http://168.138.173.100:5000/auth/google',
       'googleLogin',
       'width=500,height=600'
     );
 
     const messageListener = (event) => {
       console.log("Received event:", event); // Debugging
-      if (event.origin !== 'http://localhost:5000') return; // Validate the message origin
+      if (event.origin !== 'http://168.138.173.100:5000') return; // Validate the message origin
 
       if (event.data?.status === 'success') {
         const token = event.data.data.token;

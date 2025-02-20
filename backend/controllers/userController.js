@@ -182,6 +182,34 @@ const restoreUser = async (req, res) => {
     }
 };
 
+// Fungsi untuk mengganti password user
+const changePassword = async (req, res) => {
+  const { userId } = req.params;
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return ResponseApiHandler.error(res, 'User not found', null, 404);
+    }
+
+    // Periksa apakah password lama sesuai
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return ResponseApiHandler.error(res, 'Old password is incorrect', null, 400);
+    }
+
+    // Update password baru
+    user.password = newPassword;
+    await user.save();
+
+    return ResponseApiHandler.success(res, 'Password changed successfully');
+  } catch (err) {
+    console.error(err);
+    return ResponseApiHandler.error(res, 'Server error', err.message);
+  }
+};
+
 const createRole = async (req, res) => {
   const { name } = req.body;
 
@@ -215,6 +243,7 @@ module.exports = {
   updateUser, 
   softDeleteUser, 
   restoreUser,
+  changePassword,
   createRole,
   getRoles
 };

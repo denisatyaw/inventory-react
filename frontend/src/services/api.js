@@ -3,7 +3,7 @@ import { getAccessToken, refreshAccessToken, logout } from "./authService";
 
 // Buat instance Axios
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://168.138.173.100:5000",
 });
 
 // Interceptor untuk menambahkan token ke setiap request

@@ -7,7 +7,7 @@ const doc = {
         title: "My API",
         description: "Dokumentasi API otomatis menggunakan swagger-autogen",
     },
-    host: process.env.SWAGGER_HOST || "localhost:5000",
+    host: process.env.SWAGGER_HOST || "168.138.173.100:5000",
     schemes: ["http"],
     basePath: "/",
     securityDefinitions: {

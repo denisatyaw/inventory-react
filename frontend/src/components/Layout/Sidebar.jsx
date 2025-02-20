@@ -90,7 +90,7 @@ const Sidebar = ({ isCollapsed, onToggleSidebar }) => {
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/menu/get-menu');
+        const response = await axios.get('http://168.138.173.100:5000/menu/get-menu');
         if (response.data.success) {
           setMenuItems(response.data.data);
         }

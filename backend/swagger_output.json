@@ -5,7 +5,7 @@
     "description": "Dokumentasi API otomatis menggunakan swagger-autogen",
     "version": "1.0.0"
   },
-  "host": "localhost:5000",
+  "host": "168.138.173.100:5000",
   "basePath": "/",
   "schemes": [
     "http"
