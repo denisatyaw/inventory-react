@@ -5,6 +5,9 @@ WORKDIR /app
 # Salin package.json dan package-lock.json sebelum install dependencies
 COPY package*.json ./
 
+# Hapus package-lock.json jika ada untuk mencegah error dependency
+RUN rm -f package-lock.json
+
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
@@ -14,6 +17,9 @@ COPY . .
 # Build aplikasi React
 RUN npm run build
 
+# Hapus node_modules untuk menghemat ruang
+RUN rm -rf node_modules
+
 # Stage 2: Gunakan Nginx untuk serving aplikasi di production
 FROM nginx:alpine
 
@@ -21,7 +27,8 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Salin konfigurasi Nginx ke dalam container
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80 agar bisa diakses dari luar
 EXPOSE 80
