@@ -7,11 +7,14 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    port: 3001, // Pastikan sesuai dengan docker-compose
-    host: '0.0.0.0', // Agar dapat diakses dari luar container
-    strictPort: true, // Pastikan menggunakan port yang sama, tidak berubah-ubah
+    port: 3001,
+    host: '0.0.0.0',
+    strictPort: true,
     watch: {
-      usePolling: true, // Gunakan polling untuk mendeteksi perubahan dalam Docker
+      usePolling: true,
     },
+  },
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify('http://168.138.173.100:5000'),
   },
 });
