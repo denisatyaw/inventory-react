@@ -17,7 +17,7 @@ services:
       - MYSQL_DATABASE=mydatabase
     depends_on:
       - mysql
-    command: npm run dev
+    command: npm start  # Gunakan mode production
     networks:
       - app-network
 
@@ -26,18 +26,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
-    volumes:
-      - ./frontend:/app  # Volume untuk sinkronisasi kode
-      - frontend-node-modules:/app/node_modules  # Volume untuk node_modules frontend
+      - "3001:80"  # Gunakan port 80 karena kita pakai Nginx
     environment:
-      - VITE_API_URL=http://backend:5000  # Frontend mengakses backend menggunakan nama service 'backend'
+      - VITE_API_URL=http://168.138.173.100:5000  # Ganti dengan Public IP server
     depends_on:
       - backend
-    command: npm run dev -- --host  # Menjalankan Vite dan mengizinkan koneksi dari luar container
     networks:
       - app-network
-
 
   mysql:
     image: mysql:8.0
@@ -65,7 +60,7 @@ services:
       - mysql
     networks:
       - app-network
-  
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -74,12 +69,9 @@ services:
     networks:
       - app-network
 
-
 volumes:
   mysql-data:
     driver: local
-  frontend-node-modules:
-    driver: local  # Volume untuk node_modules frontend
   backend-node-modules:
     driver: local  # Volume untuk node_modules backend
 
