@@ -1,22 +1,30 @@
-FROM node:20.17.0
-
-# Set working directory
+# Stage 1: Build dengan Node.js
+FROM node:20.17.0 AS build
 WORKDIR /app
 
-# Menyalin package.json dan package-lock.json terlebih dahulu
+# Salin package.json dan package-lock.json sebelum install dependencies
 COPY package*.json ./
 
-# Hapus node_modules dan package-lock.json jika ada
-RUN rm -rf node_modules package-lock.json
-
-# Install dependensi
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Menyalin semua file source code ke dalam container
+# Salin seluruh source code ke dalam container
 COPY . .
 
-# Menyediakan port 3001 untuk akses
-EXPOSE 3001
+# Build aplikasi React
+RUN npm run build
 
-# Menjalankan aplikasi dengan perintah npm run dev
-CMD ["npm", "run", "dev", "--", "--host"]
+# Stage 2: Gunakan Nginx untuk serving aplikasi di production
+FROM nginx:alpine
+
+# Salin hasil build dari stage sebelumnya ke dalam direktori Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Salin konfigurasi Nginx ke dalam container
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80 agar bisa diakses dari luar
+EXPOSE 80
+
+# Jalankan Nginx
+CMD ["nginx", "-g", "daemon off;"]

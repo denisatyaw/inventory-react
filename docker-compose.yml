@@ -22,17 +22,16 @@ services:
       - app-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3001:80"  # Gunakan port 80 karena kita pakai Nginx
-    environment:
-      - VITE_API_URL=http://168.138.173.100:5000  # Ganti dengan Public IP server
-    depends_on:
-      - backend
-    networks:
-      - app-network
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+  ports:
+    - "3001:80"  # Gunakan port 80 karena pakai Nginx
+  depends_on:
+    - backend
+  networks:
+    - app-network
+
 
   mysql:
     image: mysql:8.0
