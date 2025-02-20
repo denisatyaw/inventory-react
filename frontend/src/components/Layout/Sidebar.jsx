@@ -103,7 +103,7 @@ const Sidebar = ({ isCollapsed, onToggleSidebar }) => {
   }, []);
 
   return (
-    <aside className="fixed top-0 left-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50"
+    <aside className="fixed top-0 left-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50 flex flex-col"
       style={{ width: isCollapsed ? '5rem' : '16rem' }}>
       {/* Header */}
       <div className="h-16 border-b border-gray-200 flex items-center px-4 gap-4">
@@ -120,11 +120,13 @@ const Sidebar = ({ isCollapsed, onToggleSidebar }) => {
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="p-4 space-y-1">
-        {menuItems.map((item, index) => (
-          <MenuItem key={index} item={item} isCollapsed={isCollapsed} />
-        ))}
+      {/* Navigation - Now with overflow scrolling */}
+      <nav className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="space-y-1">
+          {menuItems.map((item, index) => (
+            <MenuItem key={index} item={item} isCollapsed={isCollapsed} />
+          ))}
+        </div>
       </nav>
     </aside>
   );
