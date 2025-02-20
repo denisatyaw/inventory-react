@@ -17,7 +17,7 @@ services:
       - MYSQL_DATABASE=mydatabase
     depends_on:
       - mysql
-    command: npm start  # Gunakan mode production
+    command: npm run dev  # Gunakan mode production
     networks:
       - app-network
 
@@ -31,6 +31,7 @@ services:
       - VITE_API_URL=http://168.138.173.100:5000  # Ganti dengan Public IP server
     depends_on:
       - backend
+    command: npm run dev -- --host
     networks:
       - app-network
 
